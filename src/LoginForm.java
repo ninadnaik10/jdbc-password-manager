@@ -2,6 +2,10 @@
 import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginForm extends javax.swing.JFrame implements ActionListener {
 
@@ -10,6 +14,7 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
      */
     public LoginForm() {
         initComponents();
+//        usernameTF.setPlaceholder("Enter username");
         actionEvent();
     }
 
@@ -24,9 +29,7 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
 
         jPasswordField1 = new javax.swing.JPasswordField();
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         usernameTF = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
         signupBtn = new javax.swing.JButton();
         signinBtn = new javax.swing.JButton();
         passwordTF = new javax.swing.JPasswordField();
@@ -35,13 +38,16 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setForeground(new java.awt.Color(204, 255, 204));
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Username");
-
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("Password");
+        usernameTF.setToolTipText("");
+        usernameTF.setName(""); // NOI18N
+        usernameTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usernameTFActionPerformed(evt);
+            }
+        });
 
         signupBtn.setText("Sign Up");
         signupBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -56,39 +62,29 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(112, 112, 112)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(usernameTF)
+                    .addComponent(passwordTF, javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(signupBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
-                        .addComponent(signinBtn))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(usernameTF)
-                            .addComponent(passwordTF, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))))
-                .addContainerGap(109, Short.MAX_VALUE))
+                        .addComponent(signinBtn)))
+                .addGap(109, 109, 109))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(76, 76, 76)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(usernameTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(43, 43, 43)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(passwordTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(60, 60, 60)
+                .addGap(123, 123, 123)
+                .addComponent(usernameTF, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(passwordTF, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(38, 38, 38)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(signupBtn)
                     .addComponent(signinBtn))
-                .addContainerGap(113, Short.MAX_VALUE))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -109,6 +105,10 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
         // TODO add your handling code here:
     }//GEN-LAST:event_signupBtnActionPerformed
 
+    private void usernameTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_usernameTFActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -120,17 +120,32 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == signupBtn) {
+            String username = usernameTF.getText();
+            String password = passwordTF.getText();
+            Hashing hashing = new Hashing();
+            String hashPassword = hashing.hashMethod(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                         "ninadsql");
                 // Preapared Statement
                 PreparedStatement Pstatement = connection.prepareStatement("insert into userCred(username, password) values(?,?)");
                 // Specifying the values of it's parameter
-                Pstatement.setString(1, usernameTF.getText());
-                Pstatement.setString(2, passwordTF.getText());
+                Pstatement.setString(1, username);
+                Pstatement.setString(2, hashPassword);
                 Pstatement.executeUpdate();
-                JOptionPane.showMessageDialog(null, "Data Registered Successfully");
 
+                PreparedStatement PCreatestatement = connection.prepareStatement("create table " + username + "(accId int primary key auto_increment,"
+                        + "        webName varchar(50) not null,"
+                        + "        webUsername varchar(50),"
+                        + "        webPassword varchar(50) not null,"
+                        + "        email varchar(50),"
+                        + "        constraint user_info unique(webName, webUsername))");
+                PCreatestatement.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Data Registered Successfully");
+                dispose(); // close login page
+                Dashboard db = new Dashboard(username);
+                db.show();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -138,18 +153,20 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
         if (e.getSource() == signinBtn) {
             String username = usernameTF.getText();
             String password = passwordTF.getText();
+            Hashing hashing = new Hashing();
+            String hashPassword = hashing.hashMethod(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                         "ninadsql");
 
                 Statement stm = connection.createStatement();
 //mysql query to run
-                String sql = "select * from userCred having username = '"+username+"' and password = '"+password+"'";
+                String sql = "select * from userCred having username = '" + username + "' and password = '" + hashPassword + "'";
                 ResultSet rs = stm.executeQuery(sql);
-                if (rs.next()){
+                if (rs.next()) {
                     //if username and password is true than go to Homepage
                     dispose(); // close login page
-                    Dashboard db = new Dashboard();
+                    Dashboard db = new Dashboard(username);
                     db.show();
                 } else {
                     JOptionPane.showMessageDialog(this, "Incorrect credentials");
@@ -196,8 +213,6 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JPasswordField passwordTF;
@@ -205,4 +220,44 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
     private javax.swing.JButton signupBtn;
     private javax.swing.JTextField usernameTF;
     // End of variables declaration//GEN-END:variables
+}
+
+class Hashing {
+
+    public static byte[] getSHA(String input) throws NoSuchAlgorithmException {
+        // Static getInstance method is called with hashing SHA
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+        // digest() method called
+        // to calculate message digest of an input
+        // and return array of byte
+        return md.digest(input.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String toHexString(byte[] hash) {
+        // Convert byte array into signum representation
+        BigInteger number = new BigInteger(1, hash);
+
+        // Convert message digest into hex value
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+
+        // Pad with leading zeros
+        while (hexString.length() < 64) {
+            hexString.insert(0, '0');
+        }
+
+        return hexString.toString();
+    }
+
+    // Driver code
+    public static String hashMethod(String password) {
+        try {
+            return toHexString(getSHA(password));
+		}
+		// For specifying wrong message digest algorithms
+		catch (NoSuchAlgorithmException e) {
+            System.out.println("Exception thrown for incorrect algorithm: " + e);
+        }
+        return "0";
+    }
 }
