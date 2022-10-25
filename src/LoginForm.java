@@ -2,6 +2,10 @@
 import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginForm extends javax.swing.JFrame implements ActionListener {
 
@@ -108,7 +112,6 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
     /**
      * @param args the command line arguments
      */
-    
     public void actionEvent() {
         signupBtn.addActionListener(this);
         signinBtn.addActionListener(this);
@@ -119,7 +122,8 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
         if (e.getSource() == signupBtn) {
             String username = usernameTF.getText();
             String password = passwordTF.getText();
-
+            Hashing hashing = new Hashing();
+            String hashPassword = hashing.hashMethod(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                         "ninadsql");
@@ -127,9 +131,9 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
                 PreparedStatement Pstatement = connection.prepareStatement("insert into userCred(username, password) values(?,?)");
                 // Specifying the values of it's parameter
                 Pstatement.setString(1, username);
-                Pstatement.setString(2, password);
+                Pstatement.setString(2, hashPassword);
                 Pstatement.executeUpdate();
-                
+
                 PreparedStatement PCreatestatement = connection.prepareStatement("create table " + username + "(accId int primary key auto_increment,"
                         + "        webName varchar(50) not null,"
                         + "        webUsername varchar(50),"
@@ -137,11 +141,11 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
                         + "        email varchar(50),"
                         + "        constraint user_info unique(webName, webUsername))");
                 PCreatestatement.executeUpdate();
-                
+
                 JOptionPane.showMessageDialog(null, "Data Registered Successfully");
-                    dispose(); // close login page
-                    Dashboard db = new Dashboard(username);
-                    db.show();
+                dispose(); // close login page
+                Dashboard db = new Dashboard(username);
+                db.show();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -149,13 +153,15 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
         if (e.getSource() == signinBtn) {
             String username = usernameTF.getText();
             String password = passwordTF.getText();
+            Hashing hashing = new Hashing();
+            String hashPassword = hashing.hashMethod(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                         "ninadsql");
 
                 Statement stm = connection.createStatement();
 //mysql query to run
-                String sql = "select * from userCred having username = '" + username + "' and password = '" + password + "'";
+                String sql = "select * from userCred having username = '" + username + "' and password = '" + hashPassword + "'";
                 ResultSet rs = stm.executeQuery(sql);
                 if (rs.next()) {
                     //if username and password is true than go to Homepage
@@ -214,4 +220,44 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
     private javax.swing.JButton signupBtn;
     private javax.swing.JTextField usernameTF;
     // End of variables declaration//GEN-END:variables
+}
+
+class Hashing {
+
+    public static byte[] getSHA(String input) throws NoSuchAlgorithmException {
+        // Static getInstance method is called with hashing SHA
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+        // digest() method called
+        // to calculate message digest of an input
+        // and return array of byte
+        return md.digest(input.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String toHexString(byte[] hash) {
+        // Convert byte array into signum representation
+        BigInteger number = new BigInteger(1, hash);
+
+        // Convert message digest into hex value
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+
+        // Pad with leading zeros
+        while (hexString.length() < 64) {
+            hexString.insert(0, '0');
+        }
+
+        return hexString.toString();
+    }
+
+    // Driver code
+    public static String hashMethod(String password) {
+        try {
+            return toHexString(getSHA(password));
+		}
+		// For specifying wrong message digest algorithms
+		catch (NoSuchAlgorithmException e) {
+            System.out.println("Exception thrown for incorrect algorithm: " + e);
+        }
+        return "0";
+    }
 }
