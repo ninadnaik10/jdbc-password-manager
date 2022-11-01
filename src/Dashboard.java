@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-import javax.swing.*;
-import java.awt.event.*;
-import java.sql.*;
-=======
 
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -13,18 +8,14 @@ import java.sql.*;
 import javax.swing.table.*;
 
 public class Dashboard extends javax.swing.JFrame implements ActionListener {
->>>>>>> Stashed changes
 
-public class Dashboard extends javax.swing.JFrame implements ActionListener{
     public String user;
-<<<<<<< Updated upstream
-=======
     public String selectUsername;
     public String selectPassword;
+    public String selectName;
     StringSelection stringSelection;
     Clipboard clipboard;
 
->>>>>>> Stashed changes
     /**
      * Creates new form Dashboard
      */
@@ -32,45 +23,36 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         user = username;
         System.out.print(user);
         initComponents();
+        this.setTitle("Passvault - Password Manager");
         loadData();
         actionEvent();
+        refreshData();
+        this.setResizable(false);
+        this.setFont(new Font("Inter", Font.PLAIN, 14));
     }
-<<<<<<< Updated upstream
-    
-    public void loadData(){
-=======
 
     public Dashboard() {
     }
 
     public void loadData() {
->>>>>>> Stashed changes
         this.userLabel.setText("Hello, " + user);
     }
-    
+
     public void actionEvent() {
         addItem.addActionListener(this);
-<<<<<<< Updated upstream
-=======
         refreshBtn.addActionListener(this);
         copyPasswordBtn.addActionListener(this);
         copyUsernameBtn.addActionListener(this);
         deleteBtn.addActionListener(this);
->>>>>>> Stashed changes
 //        signinBtn.addActionListener(this);
     }
-    
+
     @Override
-    public void actionPerformed(ActionEvent e){
-        if (e.getSource() == addItem){
-            CreateEntry ce = new CreateEntry();
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == addItem) {
+            CreateEntry ce = new CreateEntry(user);
             ce.show();
         }
-<<<<<<< Updated upstream
-    }
-    
-    
-=======
         if (e.getSource() == refreshBtn) {
             DefaultTableModel model = (DefaultTableModel) entryTable.getModel();
             model.setRowCount(0);
@@ -86,8 +68,21 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
             clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(stringSelection, null);
         }
-        if (e.getSource() == refreshBtn) {
+        if (e.getSource() == deleteBtn) {
+            try {
+                System.out.println(selectName);
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
+                        "ninadsql");
+                PreparedStatement PCreatestatement = connection.prepareStatement("delete from " + user + " where webName = '" + selectName + "' and webUsername = '" + selectUsername + "';");
+                PCreatestatement.executeUpdate();
+                DefaultTableModel model = (DefaultTableModel) entryTable.getModel();
+                model.setRowCount(0);
+                refreshData();
+                System.out.println("Deleted successfully");
+            } catch (SQLException e1) {
+                e1.printStackTrace();
 
+            }
         }
     }
 
@@ -116,7 +111,6 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         }
     }
 
->>>>>>> Stashed changes
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -126,15 +120,10 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jButton2 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
         addItem = new javax.swing.JButton();
         userLabel = new javax.swing.JLabel();
-<<<<<<< Updated upstream
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-=======
         jScrollPane2 = new javax.swing.JScrollPane();
         entryTable = new javax.swing.JTable();
         refreshBtn = new javax.swing.JButton();
@@ -151,14 +140,14 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(227, 242, 253));
         jPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jPanel1.setFont(new java.awt.Font("Inter", 0, 18)); // NOI18N
+        jPanel1.setPreferredSize(new java.awt.Dimension(720, 600));
 
         addItem.setBackground(new java.awt.Color(38, 127, 255));
-        addItem.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        addItem.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         addItem.setForeground(new java.awt.Color(255, 255, 255));
->>>>>>> Stashed changes
         addItem.setText("Add Item");
         addItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -166,16 +155,11 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
             }
         });
 
-<<<<<<< Updated upstream
-=======
-        userLabel.setBackground(new java.awt.Color(204, 255, 255));
-        userLabel.setFont(new java.awt.Font("Inter", 1, 18)); // NOI18N
-        userLabel.setForeground(new java.awt.Color(51, 51, 51));
+        userLabel.setFont(new java.awt.Font("Segoe Script", 1, 36)); // NOI18N
 
-        jScrollPane2.setBackground(new java.awt.Color(255, 255, 255));
-        jScrollPane2.setForeground(new java.awt.Color(255, 255, 255));
+        jScrollPane2.setBorder(null);
+        jScrollPane2.setForeground(new java.awt.Color(38, 127, 255));
         jScrollPane2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jScrollPane2.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
         jScrollPane2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jScrollPane2MouseClicked(evt);
@@ -184,7 +168,6 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
 
         entryTable.setBackground(new java.awt.Color(204, 204, 255));
         entryTable.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
-        entryTable.setForeground(new java.awt.Color(0, 0, 0));
         entryTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -201,10 +184,8 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
                 return canEdit [columnIndex];
             }
         });
-        entryTable.setGridColor(new java.awt.Color(204, 204, 255));
         entryTable.setRowHeight(30);
-        entryTable.setSelectionBackground(new java.awt.Color(204, 204, 204));
-        entryTable.setSelectionForeground(new java.awt.Color(51, 51, 51));
+        entryTable.setSelectionBackground(new java.awt.Color(153, 153, 153));
         entryTable.getTableHeader().setReorderingAllowed(false);
         entryTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -217,7 +198,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         }
 
         refreshBtn.setBackground(new java.awt.Color(38, 127, 255));
-        refreshBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        refreshBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         refreshBtn.setForeground(new java.awt.Color(255, 255, 255));
         refreshBtn.setText("Refresh");
         refreshBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -227,7 +208,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         });
 
         copyUsernameBtn.setBackground(new java.awt.Color(38, 127, 255));
-        copyUsernameBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        copyUsernameBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         copyUsernameBtn.setForeground(new java.awt.Color(255, 255, 255));
         copyUsernameBtn.setText("Copy Username");
         copyUsernameBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -237,7 +218,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         });
 
         copyPasswordBtn.setBackground(new java.awt.Color(38, 127, 255));
-        copyPasswordBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        copyPasswordBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         copyPasswordBtn.setForeground(new java.awt.Color(255, 255, 255));
         copyPasswordBtn.setText("Copy Password");
         copyPasswordBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -247,7 +228,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         });
 
         deleteBtn.setBackground(new java.awt.Color(38, 127, 255));
-        deleteBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        deleteBtn.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         deleteBtn.setForeground(new java.awt.Color(255, 255, 255));
         deleteBtn.setText("Delete");
         deleteBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -256,103 +237,61 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
             }
         });
 
->>>>>>> Stashed changes
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-<<<<<<< Updated upstream
-                .addGap(208, 208, 208)
+                .addGap(110, 110, 110)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(addItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
-                .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(23, 23, 23))
-=======
-                .addGap(114, 114, 114)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(addItem, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(33, 33, 33)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(copyPasswordBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(copyUsernameBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(refreshBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
-                            .addComponent(deleteBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(132, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
->>>>>>> Stashed changes
+                            .addComponent(deleteBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                            .addComponent(refreshBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)))
+                    .addComponent(userLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(110, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-<<<<<<< Updated upstream
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(48, 48, 48)
-                        .addComponent(addItem, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(47, 47, 47))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(70, 70, 70)))
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(39, Short.MAX_VALUE))
-=======
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addComponent(userLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(addItem, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(addItem, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(refreshBtn)
-                                .addComponent(copyPasswordBtn)))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(copyUsernameBtn)
-                        .addComponent(deleteBtn)))
-                .addGap(49, 49, 49))
->>>>>>> Stashed changes
+                            .addComponent(deleteBtn)
+                            .addComponent(copyUsernameBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(copyPasswordBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(refreshBtn, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(43, 43, 43))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void addItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addItemActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_addItemActionPerformed
-
-<<<<<<< Updated upstream
-=======
-    private void refreshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_refreshBtnActionPerformed
-
-    private void copyUsernameBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyUsernameBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_copyUsernameBtnActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
@@ -366,18 +305,30 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
         // TODO add your handling code here:
     }//GEN-LAST:event_copyPasswordBtnActionPerformed
 
+    private void copyUsernameBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyUsernameBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_copyUsernameBtnActionPerformed
+
+    private void refreshBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_refreshBtnActionPerformed
+
     private void jScrollPane2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane2MouseClicked
-        
+
     }//GEN-LAST:event_jScrollPane2MouseClicked
 
     private void entryTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_entryTableMouseClicked
         int i = entryTable.getSelectedRow();
         TableModel model = entryTable.getModel();
+        selectName = model.getValueAt(i, 0).toString();
         selectUsername = model.getValueAt(i, 1).toString();
         selectPassword = model.getValueAt(i, 2).toString();
     }//GEN-LAST:event_entryTableMouseClicked
 
->>>>>>> Stashed changes
+    private void addItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_addItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -415,10 +366,6 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addItem;
-<<<<<<< Updated upstream
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-=======
     private javax.swing.JButton copyPasswordBtn;
     private javax.swing.JButton copyUsernameBtn;
     private javax.swing.JButton deleteBtn;
@@ -427,8 +374,6 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener{
     public javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton refreshBtn;
->>>>>>> Stashed changes
     private javax.swing.JLabel userLabel;
     // End of variables declaration//GEN-END:variables
 }
-

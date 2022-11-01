@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import java.util.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -14,12 +15,21 @@ import java.security.NoSuchAlgorithmException;
 public class CreateEntry extends JFrame implements ActionListener {
 
     RandPass rp = new RandPass();
+    String userSession;
+    String name;
+    String username;
+    String password;
+    String email;
+//    Dashboard db = new Dashboard(username);
 
     /**
      * Creates new form CreateEntry
      */
-    public CreateEntry() {
+    public CreateEntry(String user) {
         initComponents();
+        this.getContentPane().setBackground(Color.white);
+        this.setTitle("Passvault - Password Manager");
+        userSession = user;
         passwordField.setEchoChar((char) 0);
         actionEvent();
 
@@ -29,7 +39,7 @@ public class CreateEntry extends JFrame implements ActionListener {
         genBtn.addActionListener(this);
         copyBtn.addActionListener(this);
         cancelBtn.addActionListener(this);
-//        signinBtn.addActionListener(this);
+        saveBtn.addActionListener(this);
     }
 
     @Override
@@ -42,8 +52,33 @@ public class CreateEntry extends JFrame implements ActionListener {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(stringSelection, null);
         }
-        if (e.getSource() == cancelBtn){
+        if (e.getSource() == cancelBtn) {
             this.dispose();
+        }
+        if (e.getSource() == saveBtn) {
+            name = webName.getText();
+            username = usernameField.getText();
+            password = passwordField.getText();
+            email = emailField.getText();
+            System.out.print(password);
+            try {
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
+                        "ninadsql");
+                // Preapared Statement
+                PreparedStatement Pstatement = connection.prepareStatement("insert into " + userSession + "(webName, webUsername, email, webPassword) values(?,?,?,?)");
+                // Specifying the values of it's parameter
+                Pstatement.setString(1, name);
+                Pstatement.setString(2, username);
+                Pstatement.setString(3, email);
+                Pstatement.setString(4, password);
+                Pstatement.executeUpdate();
+                this.dispose();
+//                refreshData rd = new refreshData();
+                  System.out.println("Saved Successfully");
+            } catch (SQLException e1) {
+                
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -59,38 +94,41 @@ public class CreateEntry extends JFrame implements ActionListener {
         jLabel1 = new javax.swing.JLabel();
         webName = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        usernameField = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         passwordField = new javax.swing.JPasswordField();
         genBtn = new javax.swing.JButton();
         copyBtn = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        saveBtn = new javax.swing.JButton();
         cancelBtn = new javax.swing.JButton();
-<<<<<<< Updated upstream
-=======
         jLabel4 = new javax.swing.JLabel();
         emailField = new javax.swing.JTextField();
-        jPanel1 = new javax.swing.JPanel();
->>>>>>> Stashed changes
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setResizable(false);
 
         jLabel1.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
         jLabel1.setText("Name");
 
+        webName.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
+
         jLabel2.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
         jLabel2.setText("Username");
+
+        usernameField.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
 
         jLabel3.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
         jLabel3.setText("Password");
 
+        passwordField.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
         passwordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 passwordFieldActionPerformed(evt);
             }
         });
 
+        genBtn.setBackground(new java.awt.Color(38, 127, 255));
+        genBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        genBtn.setForeground(new java.awt.Color(255, 255, 255));
         genBtn.setText("Generate");
         genBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -98,6 +136,9 @@ public class CreateEntry extends JFrame implements ActionListener {
             }
         });
 
+        copyBtn.setBackground(new java.awt.Color(38, 127, 255));
+        copyBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        copyBtn.setForeground(new java.awt.Color(255, 255, 255));
         copyBtn.setText("Copy");
         copyBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -105,13 +146,19 @@ public class CreateEntry extends JFrame implements ActionListener {
             }
         });
 
-        jButton3.setText("Save");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        saveBtn.setBackground(new java.awt.Color(38, 127, 255));
+        saveBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        saveBtn.setForeground(new java.awt.Color(255, 255, 255));
+        saveBtn.setText("Save");
+        saveBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                saveBtnActionPerformed(evt);
             }
         });
 
+        cancelBtn.setBackground(new java.awt.Color(38, 127, 255));
+        cancelBtn.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
+        cancelBtn.setForeground(new java.awt.Color(255, 255, 255));
         cancelBtn.setText("Cancel");
         cancelBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -119,98 +166,64 @@ public class CreateEntry extends JFrame implements ActionListener {
             }
         });
 
-<<<<<<< Updated upstream
-=======
         jLabel4.setFont(new java.awt.Font("Inter", 1, 14)); // NOI18N
         jLabel4.setText("URL");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
+        emailField.setFont(new java.awt.Font("Inter", 0, 14)); // NOI18N
 
->>>>>>> Stashed changes
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-<<<<<<< Updated upstream
-                .addGap(104, 104, 104)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(genBtn)
-                        .addGap(18, 18, 18)
-                        .addComponent(copyBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(passwordField)
-                    .addComponent(jTextField1)
-                    .addComponent(webName))
-                .addContainerGap(158, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3)
+                .addComponent(saveBtn)
                 .addGap(18, 18, 18)
                 .addComponent(cancelBtn)
                 .addGap(16, 16, 16))
-=======
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(104, 104, 104)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(104, 104, 104)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(genBtn)
-                                .addGap(18, 18, 18)
-                                .addComponent(copyBtn))
-                            .addComponent(passwordField)
-                            .addComponent(emailField)
-                            .addComponent(usernameField)
-                            .addComponent(webName)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(114, Short.MAX_VALUE))
->>>>>>> Stashed changes
+                        .addComponent(genBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(copyBtn))
+                    .addComponent(passwordField)
+                    .addComponent(emailField)
+                    .addComponent(usernameField)
+                    .addComponent(webName)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(129, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(96, 96, 96)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(webName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
+                .addGap(26, 26, 26)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(57, 57, 57)
+                .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(genBtn)
                     .addComponent(copyBtn))
-<<<<<<< Updated upstream
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 98, Short.MAX_VALUE)
-=======
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
->>>>>>> Stashed changes
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
+                    .addComponent(saveBtn)
                     .addComponent(cancelBtn))
                 .addGap(17, 17, 17))
         );
@@ -230,9 +243,9 @@ public class CreateEntry extends JFrame implements ActionListener {
         // TODO add your handling code here:
     }//GEN-LAST:event_copyBtnActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_saveBtnActionPerformed
 
     private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
         // TODO add your handling code here:
@@ -268,7 +281,7 @@ public class CreateEntry extends JFrame implements ActionListener {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                CreateEntry ce1 = new CreateEntry();
+                CreateEntry ce1 = new CreateEntry(null);
                 ce1.setVisible(true);
             }
         });
@@ -277,18 +290,15 @@ public class CreateEntry extends JFrame implements ActionListener {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelBtn;
     private javax.swing.JButton copyBtn;
+    private javax.swing.JTextField emailField;
     private javax.swing.JButton genBtn;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-<<<<<<< Updated upstream
-    private javax.swing.JTextField jTextField1;
-=======
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
->>>>>>> Stashed changes
     private javax.swing.JPasswordField passwordField;
+    private javax.swing.JButton saveBtn;
+    private javax.swing.JTextField usernameField;
     private javax.swing.JTextField webName;
     // End of variables declaration//GEN-END:variables
 }
@@ -297,7 +307,7 @@ class RandPass {
 
     // Method to generate a random alphanumeric password of a specific length
     public static String randPassword(int len) {
-        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+:<>?/.,';][]'|";
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~`!@#$%^&*()_-+={[}]|:;'<,>.?";
 
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
@@ -313,7 +323,14 @@ class RandPass {
     }
 
     public static String randGen() {
-        int len = 14;
+        int len = 16;
         return (randPassword(len));
     }
 }
+
+//class refreshData extends Dashboard{
+//    Dashboard(CreateEntry.user);
+//    public refreshData(){
+//        super.refreshData();
+//    }
+//}
