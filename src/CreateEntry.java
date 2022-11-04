@@ -16,21 +16,25 @@ public class CreateEntry extends JFrame implements ActionListener {
 
     RandPass rp = new RandPass();
     String userSession;
+    String userPassword;
     String name;
     String username;
     String password;
     String email;
-//    Dashboard db = new Dashboard(username);
+    AESEncryption aes;
 
+//    Dashboard db = new Dashboard(username);
     /**
      * Creates new form CreateEntry
      */
-    public CreateEntry(String user) {
+    public CreateEntry(String user, String password) {
         initComponents();
         this.getContentPane().setBackground(Color.white);
         this.setTitle("Passvault - Password Manager");
         userSession = user;
+        userPassword = password;
         passwordField.setEchoChar((char) 0);
+        aes = new AESEncryption(userPassword);
         actionEvent();
 
     }
@@ -57,15 +61,21 @@ public class CreateEntry extends JFrame implements ActionListener {
         }
         if (e.getSource() == saveBtn) {
             name = webName.getText();
-            username = usernameField.getText();
-            password = passwordField.getText();
+            SHA1 s1 = new SHA1();
+            String hashUsername = s1.hashMethod(userSession);
+            try {
+                username = aes.encrypt(usernameField.getText());
+                password = aes.encrypt(passwordField.getText());
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
             email = emailField.getText();
             System.out.print(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                         "ninadsql");
                 // Preapared Statement
-                PreparedStatement Pstatement = connection.prepareStatement("insert into " + userSession + "(webName, webUsername, email, webPassword) values(?,?,?,?)");
+                PreparedStatement Pstatement = connection.prepareStatement("insert into " + hashUsername + "(webName, webUsername, URL, webPassword) values(?,?,?,?)");
                 // Specifying the values of it's parameter
                 Pstatement.setString(1, name);
                 Pstatement.setString(2, username);
@@ -74,9 +84,9 @@ public class CreateEntry extends JFrame implements ActionListener {
                 Pstatement.executeUpdate();
                 this.dispose();
 //                refreshData rd = new refreshData();
-                  System.out.println("Saved Successfully");
+                System.out.println("Saved Successfully");
             } catch (SQLException e1) {
-                
+
                 e1.printStackTrace();
             }
         }
@@ -281,7 +291,7 @@ public class CreateEntry extends JFrame implements ActionListener {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                CreateEntry ce1 = new CreateEntry(null);
+                CreateEntry ce1 = new CreateEntry(null, null);
                 ce1.setVisible(true);
             }
         });

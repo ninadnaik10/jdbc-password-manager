@@ -6,21 +6,33 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.sql.*;
 import javax.swing.table.*;
+import java.security.Key;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64.Encoder;
+import java.util.Base64.Decoder;
 
 public class Dashboard extends javax.swing.JFrame implements ActionListener {
 
     public String user;
+    public String userPassword;
     public String selectUsername;
     public String selectPassword;
     public String selectName;
     StringSelection stringSelection;
     Clipboard clipboard;
+    SHA1 s1 = new SHA1();
 
     /**
      * Creates new form Dashboard
      */
-    public Dashboard(String username) {
+    public Dashboard(String username, String password) {
         user = username;
+        String hashUsername = s1.hashMethod(user);
+        userPassword = password;
         System.out.print(user);
         initComponents();
         this.setTitle("Passvault - Password Manager");
@@ -29,9 +41,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
         refreshData();
         this.setResizable(false);
         this.setFont(new Font("Inter", Font.PLAIN, 14));
-    }
-
-    public Dashboard() {
+        AESEncryption aes = new AESEncryption(userPassword);
     }
 
     public void loadData() {
@@ -50,7 +60,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addItem) {
-            CreateEntry ce = new CreateEntry(user);
+            CreateEntry ce = new CreateEntry(user, userPassword);
             ce.show();
         }
         if (e.getSource() == refreshBtn) {
@@ -69,11 +79,12 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
             clipboard.setContents(stringSelection, null);
         }
         if (e.getSource() == deleteBtn) {
+            String hashUsername = s1.hashMethod(user);
             try {
                 System.out.println(selectName);
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                         "ninadsql");
-                PreparedStatement PCreatestatement = connection.prepareStatement("delete from " + user + " where webName = '" + selectName + "' and webUsername = '" + selectUsername + "';");
+                PreparedStatement PCreatestatement = connection.prepareStatement("delete from " + hashUsername + " where webName = '" + selectName + "' and webUsername = '" + selectUsername + "';");
                 PCreatestatement.executeUpdate();
                 DefaultTableModel model = (DefaultTableModel) entryTable.getModel();
                 model.setRowCount(0);
@@ -87,11 +98,13 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
     }
 
     public void refreshData() {
+        String hashUsername = s1.hashMethod(user);
+        AESEncryption aes = new AESEncryption(userPassword);
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
                     "ninadsql");
             Statement st = connection.createStatement();
-            String query = "select webName, webUsername, webPassword from " + user + ";";
+            String query = "select webName, webUsername, webPassword from " + hashUsername + ";";
             ResultSet rs = st.executeQuery(query);
             ResultSetMetaData rsmd = rs.getMetaData();
             DefaultTableModel model = (DefaultTableModel) entryTable.getModel();
@@ -102,8 +115,15 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
             }
             model.setColumnIdentifiers(colName); */
             while (rs.next()) {
-                String[] row = {rs.getString(1), rs.getString(2), rs.getString(3)};
-                model.addRow(row);
+                try {
+                    String pw = aes.decrypt(rs.getString(3));
+                    String us = aes.decrypt(rs.getString(2));
+                    String[] row = {rs.getString(1), us, pw};
+                    model.addRow(row);
+                } catch (Exception ex) {
+                    System.out.println(ex);
+                }
+
 //                model.getColumn
             }
         } catch (SQLException e1) {
@@ -359,7 +379,7 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Dashboard(null).setVisible(true);
+                new Dashboard(null, null).setVisible(true);
             }
         });
     }
@@ -376,4 +396,40 @@ public class Dashboard extends javax.swing.JFrame implements ActionListener {
     private javax.swing.JButton refreshBtn;
     private javax.swing.JLabel userLabel;
     // End of variables declaration//GEN-END:variables
+}
+
+class AESEncryption {
+
+    private static final String ALGO = "AES";
+    private byte[] keyValue;
+    Base64.Encoder encoder = Base64.getEncoder();
+    Base64.Decoder decoder = Base64.getDecoder();
+
+    public AESEncryption(String key) {
+        keyValue = key.getBytes();
+    }
+
+    public String encrypt(String Data) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encVal = c.doFinal(Data.getBytes());
+        String encryptedValue = encoder.encodeToString(encVal);
+        return encryptedValue;
+    }
+
+    public String decrypt(String encryptedData) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.DECRYPT_MODE, key);
+        byte[] decordedValue = decoder.decode(encryptedData); //Decoder.decode(encryptedData);
+        byte[] decValue = c.doFinal(decordedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+    }
+
+    private Key generateKey() throws Exception {
+        Key key = new SecretKeySpec(keyValue, ALGO);
+        return key;
+    }
 }

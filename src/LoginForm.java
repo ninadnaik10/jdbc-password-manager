@@ -141,7 +141,14 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
         if (e.getSource() == signupBtn) {
             String username = usernameTF.getText();
             String password = passwordTF.getText();
+            if (password.length() < 16) {
+                JOptionPane.showMessageDialog(null, "Password too short");
+                usernameTF.setText("");
+                passwordTF.setText("");
+                return;
+            }
             Hashing hashing = new Hashing();
+            String hashUsername = hashing.hashMethod(username);
             String hashPassword = hashing.hashMethod(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
@@ -149,31 +156,38 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
                 // Preapared Statement
                 PreparedStatement Pstatement = connection.prepareStatement("insert into userCred(username, password) values(?,?)");
                 // Specifying the values of it's parameter
-                Pstatement.setString(1, username);
+                Pstatement.setString(1, hashUsername);
                 Pstatement.setString(2, hashPassword);
                 Pstatement.executeUpdate();
 
-                PreparedStatement PCreatestatement = connection.prepareStatement("create table " + username + "(accId int primary key auto_increment,"
+                PreparedStatement PCreatestatement = connection.prepareStatement("create table " + hashUsername + "(accId int primary key auto_increment,"
                         + "        webName varchar(50) not null,"
                         + "        webUsername varchar(50),"
                         + "        webPassword varchar(50) not null,"
-                        + "        email varchar(50),"
+                        + "        URL varchar(50),"
                         + "        constraint user_info unique(webName, webUsername))");
                 PCreatestatement.executeUpdate();
 
                 JOptionPane.showMessageDialog(null, "Data Registered Successfully");
                 dispose(); // close login page
-                Dashboard db = new Dashboard(username);
+                Dashboard db = new Dashboard(username, password);
                 db.show();
                 connection.close();
             } catch (SQLException e1) {
                 e1.printStackTrace();
+                if (e1.getMessage().contains("Duplicate entry")) {
+                    JOptionPane.showMessageDialog(null, "Username not available");
+                    usernameTF.setText("");
+                    passwordTF.setText("");
+                }
             }
         }
         if (e.getSource() == signinBtn) {
             String username = usernameTF.getText();
             String password = passwordTF.getText();
             Hashing hashing = new Hashing();
+            SHA1 s1 = new SHA1();
+            String hashUsername = s1.hashMethod(username);
             String hashPassword = hashing.hashMethod(password);
             try {
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mprdb", "root",
@@ -181,12 +195,12 @@ public class LoginForm extends javax.swing.JFrame implements ActionListener {
 
                 Statement stm = connection.createStatement();
 //mysql query to run
-                String sql = "select * from userCred having username = '" + username + "' and password = '" + hashPassword + "'";
+                String sql = "select * from userCred having username = '" + hashUsername + "' and password = '" + hashPassword + "'";
                 ResultSet rs = stm.executeQuery(sql);
                 if (rs.next()) {
                     //if username and password is true than go to Homepage
                     dispose(); // close login page
-                    Dashboard db = new Dashboard(username);
+                    Dashboard db = new Dashboard(username, password);
                     db.show();
                 } else {
                     JOptionPane.showMessageDialog(this, "Incorrect credentials");
@@ -276,11 +290,22 @@ class Hashing {
     public static String hashMethod(String password) {
         try {
             return toHexString(getSHA(password));
-		}
-		// For specifying wrong message digest algorithms
-		catch (NoSuchAlgorithmException e) {
+        } // For specifying wrong message digest algorithms
+        catch (NoSuchAlgorithmException e) {
             System.out.println("Exception thrown for incorrect algorithm: " + e);
         }
         return "0";
+    }
+}
+
+class SHA1 extends Hashing{
+    public static byte[] getSHA(String input) throws NoSuchAlgorithmException {
+        // Static getInstance method is called with hashing SHA
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+
+        // digest() method called
+        // to calculate message digest of an input
+        // and return array of byte
+        return md.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 }
